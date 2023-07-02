@@ -6,7 +6,6 @@
  *                                                                                                *
  ************************************************************************************************ */
 
-
 /**
  * Returns the rectangle object with width and height parameters and getArea() method
  *
@@ -20,11 +19,13 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
 }
-
-
+Rectangle.prototype.getArea = function () {
+  return this.width * this.height;
+};
 /**
  * Returns the JSON representation of specified object
  *
@@ -35,10 +36,9 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
-
 
 /**
  * Returns the object of specified type from JSON representation
@@ -51,10 +51,11 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const obj = JSON.parse(json);
+  Object.setPrototypeOf(obj, proto);
+  return obj;
 }
-
 
 /**
  * Css selectors builder
@@ -110,36 +111,60 @@ function fromJSON(/* proto, json */) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
-  },
+class CSSSelectorBuilder {
+  constructor() {
+    this.selector = '';
+  }
 
-  id(/* value */) {
-    throw new Error('Not implemented');
-  },
+  element(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = this.selector + value;
+    return builder;
+  }
 
-  class(/* value */) {
-    throw new Error('Not implemented');
-  },
+  id(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${this.selector}#${value}`;
+    return builder;
+  }
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
-  },
+  class(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${this.selector}.${value}`;
+    return builder;
+  }
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
-  },
+  attr(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${this.selector}[${value}]`;
+    return builder;
+  }
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
-  },
+  pseudoClass(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${this.selector}:${value}`;
+    return builder;
+  }
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
-  },
-};
+  pseudoElement(value) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${this.selector}::${value}`;
+    return builder;
+  }
 
+  // eslint-disable-next-line class-methods-use-this
+  combine(selector1, combinator, selector2) {
+    const builder = new CSSSelectorBuilder();
+    builder.selector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return builder;
+  }
+
+  stringify() {
+    return this.selector;
+  }
+}
+
+const cssSelectorBuilder = new CSSSelectorBuilder();
 
 module.exports = {
   Rectangle,
